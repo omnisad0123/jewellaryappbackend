@@ -10,36 +10,41 @@ router.post(
     // Validation middleware using express-validator
     body('name').notEmpty().withMessage('Name is required'),
     body('email').isEmail().withMessage('Invalid email format'),
-    body('password').notEmpty().withMessage('Password is required')
+    body('password').notEmpty().withMessage('Password is required'),
+    // body('Address').optional().notEmpty().withMessage('Address is required')
   ],
   async (req, res) => {
-    // Check for validation errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    // Check if the email is already in use
-    const existingUser = await User.findOne({ email: req.body.email });
-    if (existingUser) {
-      return res.status(400).json({ error: 'Email is already in use' });
-    }
-
     try {
-      await User.create({
+      // Check for validation errors
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      // Check if the email is already in use
+      const existingUser = await User.findOne({ email: req.body.email });
+      if (existingUser) {
+        return res.status(400).json({ error: 'Email is already in use' });
+      }
+
+      // Create a new user
+      const newUser = new User({
         name: req.body.name,
         email: req.body.email,
-        password: req.body.password,
-        
+        password: req.body.password
       });
 
-      res.status(201).json({ message: 'User created successfully' });
+      // Save the user to the database
+      await newUser.save();
+
+      res.status(201).json({ message: 'User created successfully', user: newUser });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: 'Internal server error', details: error.message });
     }
   }
 );
+
 
 // Route for user login
 router.post(

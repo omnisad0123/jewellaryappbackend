@@ -40,8 +40,8 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-const createUserRoute = require('./Routes/CreateUser');
-app.use('/users', createUserRoute);
+
+app.use('/users', require('./Routes/CreateUser'));
 app.use('/users', require('./Routes/DisplayData'));
 app.use('/users', require('./Routes/orderedData'));
 app.use('/users', require('./Routes/MyOrderout'));
